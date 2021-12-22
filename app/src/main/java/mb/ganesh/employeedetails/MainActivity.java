@@ -81,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
                     View v = findViewById(android.R.id.content);
                     Snackbar.make(v , "Enter All the Above Details" , Snackbar.LENGTH_LONG).show();
                 }
-
             }
         });
 
@@ -103,20 +102,16 @@ public class MainActivity extends AppCompatActivity {
         com.itextpdf.kernel.pdf.PdfDocument pdfDocument = new com.itextpdf.kernel.pdf.PdfDocument(writer);
         Document document = new Document(pdfDocument);
 
-        Drawable d = getDrawable(R.drawable.netlogo);
+        Drawable d = getDrawable(R.drawable.gdood);
         Bitmap bitmap = ((BitmapDrawable)d).getBitmap();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG , 45 , stream);
         byte[] bitmapData = stream.toByteArray();
 
-
-        document.setBackgroundColor(ColorConstants.CYAN);
-
-
         ImageData imageData = ImageDataFactory.create(bitmapData);
-        Image image = new Image(imageData).setWidth(300).setHeight(210).setHorizontalAlignment(HorizontalAlignment.CENTER);
+        Image image = new Image(imageData).setWidth(300).setHeight(300).setHorizontalAlignment(HorizontalAlignment.CENTER);
 
-        Paragraph paragraph = new Paragraph("Netcom Employee Details").setBold().setFontSize(24).setTextAlignment(TextAlignment.CENTER);
+        Paragraph paragraph = new Paragraph("Employee Details").setBold().setFontSize(24).setTextAlignment(TextAlignment.CENTER);
 
         float[] width = {125f,250f};
         Table table = new Table(width);
@@ -126,10 +121,10 @@ public class MainActivity extends AppCompatActivity {
         table.addCell(new Cell().add(new Paragraph(name)));
 
         table.addCell(new Cell().add(new Paragraph("Mob No").setBold()));
-        table.addCell(new Cell().add(new Paragraph(mobno)));
+        table.addCell(new Cell().add(new Paragraph("+91"+mobno)));
 
         table.addCell(new Cell().add(new Paragraph("Mail ID").setBold()));
-        table.addCell(new Cell().add(new Paragraph(mail)));
+        table.addCell(new Cell().add(new Paragraph(mail+"@gmail.com")));
 
         table.addCell(new Cell().add(new Paragraph("Address").setBold()));
         table.addCell(new Cell().add(new Paragraph(address)));
