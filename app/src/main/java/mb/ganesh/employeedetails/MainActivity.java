@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
         generatePdf = findViewById(R.id.generatePdf);
         sharePdf = findViewById(R.id.sharePdf);
 
-
         if (checkPermission()) {
 //            remove while build apk.
             View v = findViewById(android.R.id.content);
