@@ -9,12 +9,14 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Parcelable;
 import android.view.View;
 import android.widget.Toast;
 
@@ -44,9 +46,9 @@ import java.time.format.DateTimeFormatter;
 
 public class MainActivity extends AppCompatActivity {
 
-
     TextInputEditText nameField , mobNoField , mailIdField , addressField , cityField , stateField,qualificationField, genderField , skillsField;
     MaterialButton generatePdf , sharePdf;
+    Document document;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,20 +106,32 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 View v = findViewById(android.R.id.content);
                 Snackbar.make(v , "Under Processing" , Snackbar.LENGTH_LONG).show();
+
+//                try {
+//                    Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+//                    sharingIntent.setType("application/pdf");
+//                    sharingIntent.putExtra(Intent.EXTRA_STREAM, (Parcelable) document);
+//                    startActivity(Intent.createChooser(sharingIntent, "Share image using"));
+//
+//                }catch (Exception e){
+//                    e.printStackTrace();
+//                }
+
             }
+
         });
     }
 
     private void getPdf(String name, String mobno, String mail, String address, String city, String state, String qualifi, String gender, String skills) throws Exception{
         String pdfPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString();
-        File file = new File(pdfPath , name+"sDetails.pdf");
+        File file = new File(pdfPath , "EmployeeDetails.pdf");
 //        OutputStream outputStream = new FileOutputStream(file);
 
         PdfWriter writer = new PdfWriter(file);
         com.itextpdf.kernel.pdf.PdfDocument pdfDocument = new com.itextpdf.kernel.pdf.PdfDocument(writer);
-        Document document = new Document(pdfDocument);
+         document = new Document(pdfDocument);
 
-        Drawable d = getDrawable(R.drawable.gdood);
+        Drawable d = getDrawable(R.drawable.netlogo);
         Bitmap bitmap = ((BitmapDrawable)d).getBitmap();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG , 45 , stream);
@@ -126,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
         ImageData imageData = ImageDataFactory.create(bitmapData);
         Image image = new Image(imageData).setWidth(300).setHeight(300).setHorizontalAlignment(HorizontalAlignment.CENTER);
 
-        Paragraph paragraph = new Paragraph("Employee Details").setBold().setFontSize(24).setTextAlignment(TextAlignment.CENTER);
+        Paragraph paragraph = new Paragraph("Netcom Employee Details").setBold().setFontSize(24).setTextAlignment(TextAlignment.CENTER);
 
         float[] width = {125f,250f};
         Table table = new Table(width);
