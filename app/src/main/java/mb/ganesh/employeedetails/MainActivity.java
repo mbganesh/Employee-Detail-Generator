@@ -1,8 +1,15 @@
 package mb.ganesh.employeedetails;
 
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -57,6 +64,15 @@ public class MainActivity extends AppCompatActivity {
         skillsField = findViewById(R.id.skillsField);
         generatePdf = findViewById(R.id.generatePdf);
         sharePdf = findViewById(R.id.sharePdf);
+
+
+        if (checkPermission()) {
+//            remove while build apk.
+            View v = findViewById(android.R.id.content);
+//            Snackbar.make(v , "Permission Granted" ,Snackbar.LENGTH_LONG).show();
+        } else {
+            requestPermission();
+        }
 
         generatePdf.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -167,5 +183,38 @@ public class MainActivity extends AppCompatActivity {
 
         document.close();
         Toast.makeText(MainActivity.this, "Pdf Created", Toast.LENGTH_SHORT).show();
+    }
+    private boolean checkPermission() {
+        // checking of permissions.
+        int permission1 = ContextCompat.checkSelfPermission(getApplicationContext(), WRITE_EXTERNAL_STORAGE);
+        int permission2 = ContextCompat.checkSelfPermission(getApplicationContext(), READ_EXTERNAL_STORAGE);
+        return permission1 == PackageManager.PERMISSION_GRANTED && permission2 == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestPermission() {
+        // requesting permissions if not provided.
+        ActivityCompat.requestPermissions(this, new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, 200);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 200) {
+            if (grantResults.length > 0) {
+                View v = findViewById(android.R.id.content);
+
+                // after requesting permissions we are showing
+                // users a toast message of permission granted.
+                boolean writeStorage = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                boolean readStorage = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+
+                if (writeStorage && readStorage) {
+                    Snackbar.make(v , "Permission Granted" ,Snackbar.LENGTH_LONG).show();
+                } else {
+                    Snackbar.make(v , "Permission Denied" ,Snackbar.LENGTH_LONG).show();
+                    finish();
+                }
+            }
+        }
     }
 }
