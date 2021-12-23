@@ -12,12 +12,16 @@ import androidx.core.content.ContextCompat;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcelable;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
@@ -47,8 +51,10 @@ import java.time.format.DateTimeFormatter;
 public class MainActivity extends AppCompatActivity {
 
     TextInputEditText nameField , mobNoField , mailIdField , addressField , cityField , stateField,qualificationField, genderField , skillsField;
-    MaterialButton generatePdf , sharePdf;
+    MaterialButton generatePdf , viewPdf;
     Document document;
+    ProgressBar homeLoader;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,11 +71,13 @@ public class MainActivity extends AppCompatActivity {
         genderField = findViewById(R.id.genderField);
         skillsField = findViewById(R.id.skillsField);
         generatePdf = findViewById(R.id.generatePdf);
-        sharePdf = findViewById(R.id.sharePdf);
+        viewPdf = findViewById(R.id.viewPdf);
+        homeLoader = findViewById(R.id.homeLoader);
+
 
         if (checkPermission()) {
 //            remove while build apk.
-            View v = findViewById(android.R.id.content);
+//            View v = findViewById(android.R.id.content);
 //            Snackbar.make(v , "Permission Granted" ,Snackbar.LENGTH_LONG).show();
         } else {
             requestPermission();
@@ -90,33 +98,22 @@ public class MainActivity extends AppCompatActivity {
 
                 if(!name.isEmpty() || !mobno.isEmpty() ||  !mail.isEmpty() ||  !address.isEmpty() ||  !city.isEmpty() ||  !state.isEmpty() ||  !qualifi.isEmpty() ||  !gender.isEmpty() ||  !skills.isEmpty() ){
                     try {
+                        homeLoader.setVisibility(View.VISIBLE);
                         getPdf(name , mobno , mail , address , city , state , qualifi , gender , skills);
                     }catch (Exception e){
                         e.printStackTrace();
                     }
                 }else {
                     View v = findViewById(android.R.id.content);
-                    Snackbar.make(v , "Enter All the Above Details" , Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(v , "Field Count not be empty." , Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(MainActivity.this , R.color.red)).show();
                 }
             }
         });
 
-        sharePdf.setOnClickListener(new View.OnClickListener() {
+        viewPdf.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                View v = findViewById(android.R.id.content);
-                Snackbar.make(v , "Under Processing" , Snackbar.LENGTH_LONG).show();
-
-//                try {
-//                    Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-//                    sharingIntent.setType("application/pdf");
-//                    sharingIntent.putExtra(Intent.EXTRA_STREAM, (Parcelable) document);
-//                    startActivity(Intent.createChooser(sharingIntent, "Share image using"));
-//
-//                }catch (Exception e){
-//                    e.printStackTrace();
-//                }
-
+                startActivity(new Intent(MainActivity.this , ViewActivity.class));
             }
 
         });
@@ -127,20 +124,22 @@ public class MainActivity extends AppCompatActivity {
         File file = new File(pdfPath , "EmployeeDetails.pdf");
 //        OutputStream outputStream = new FileOutputStream(file);
 
+
+
         PdfWriter writer = new PdfWriter(file);
         com.itextpdf.kernel.pdf.PdfDocument pdfDocument = new com.itextpdf.kernel.pdf.PdfDocument(writer);
          document = new Document(pdfDocument);
 
-        Drawable d = getDrawable(R.drawable.netlogo);
+        Drawable d = getDrawable(R.drawable.gdood);
         Bitmap bitmap = ((BitmapDrawable)d).getBitmap();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG , 45 , stream);
         byte[] bitmapData = stream.toByteArray();
 
         ImageData imageData = ImageDataFactory.create(bitmapData);
-        Image image = new Image(imageData).setWidth(300).setHeight(300).setHorizontalAlignment(HorizontalAlignment.CENTER);
+        Image image = new Image(imageData).setWidth(150).setHeight(150).setHorizontalAlignment(HorizontalAlignment.CENTER);
 
-        Paragraph paragraph = new Paragraph("Netcom Employee Details").setBold().setFontSize(24).setTextAlignment(TextAlignment.CENTER);
+        Paragraph paragraph = new Paragraph("\nEmployee Details\n").setBold().setFontSize(24).setTextAlignment(TextAlignment.CENTER);
 
         float[] width = {125f,250f};
         Table table = new Table(width);
@@ -173,15 +172,15 @@ public class MainActivity extends AppCompatActivity {
         table.addCell(new Cell().add(new Paragraph("Skills").setBold()));
         table.addCell(new Cell().add(new Paragraph(skills)));
 
-        Paragraph qrHead  = new Paragraph("Scan to get Employee Details").setBold().setFontSize(16).setHorizontalAlignment(HorizontalAlignment.CENTER).setTextAlignment(TextAlignment.CENTER);
+        Paragraph qrHead  = new Paragraph("\nScan to get Employee Details\n").setBold().setFontSize(16).setHorizontalAlignment(HorizontalAlignment.CENTER).setTextAlignment(TextAlignment.CENTER);
 
         String qrData = "Name : " + name +"\nMobNo : " + mobno +"\nMailId : " + mail + "\nAddress : " + address + "\nCity : " + city + "\nState : " + state + "\nQualification : " + qualifi + "\nGender : " + gender + "\nSkills : " + skills ;
         BarcodeQRCode qrCode = new BarcodeQRCode(qrData);
         PdfFormXObject qrCodeObj = qrCode.createFormXObject(ColorConstants.BLACK , pdfDocument);
-        Image qrCodeImage = new Image(qrCodeObj).setWidth(85).setHorizontalAlignment(HorizontalAlignment.CENTER);
+        Image qrCodeImage = new Image(qrCodeObj).setWidth(85).setHorizontalAlignment(HorizontalAlignment.CENTER).setWidth(100).setHeight(100);
 
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        Paragraph dateHead  = new Paragraph("Date").setBold().setTextAlignment(TextAlignment.LEFT);
+        Paragraph dateHead  = new Paragraph("Date").setBold().setTextAlignment(TextAlignment.LEFT).setMarginTop(50);
         Paragraph date  = new Paragraph(LocalDate.now().format(dateTimeFormatter)).setTextAlignment(TextAlignment.LEFT);
         Paragraph sign  = new Paragraph("Employee Sign" ).setBold().setTextAlignment(TextAlignment.RIGHT);
 
@@ -190,12 +189,22 @@ public class MainActivity extends AppCompatActivity {
         document.add(table);
         document.add(qrHead);
         document.add(qrCodeImage);
-        document.add(dateHead);
-        document.add(date);
+        document.add(dateHead).setFixedPosition(25,25,200);
+        document.add(date).setFixedPosition(25,25,200);
         document.add(sign);
 
         document.close();
-        Toast.makeText(MainActivity.this, "Pdf Created", Toast.LENGTH_SHORT).show();
+
+        View v = findViewById(android.R.id.content);
+        Snackbar.make(v , "PDF Generator" , Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(MainActivity.this , R.color.priCol)).show();
+
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                homeLoader.setVisibility(View.GONE);
+            }
+        },850);
+
     }
     private boolean checkPermission() {
         // checking of permissions.
@@ -222,9 +231,9 @@ public class MainActivity extends AppCompatActivity {
                 boolean readStorage = grantResults[1] == PackageManager.PERMISSION_GRANTED;
 
                 if (writeStorage && readStorage) {
-                    Snackbar.make(v , "Permission Granted" ,Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(v , "Permission Granted" ,Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(MainActivity.this , R.color.green)).show();
                 } else {
-                    Snackbar.make(v , "Permission Denied" ,Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(v , "Permission Denied! Allow to download PDF" ,Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(MainActivity.this , R.color.red)).show();
                     finish();
                 }
             }

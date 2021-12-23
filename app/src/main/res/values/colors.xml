@@ -9,4 +9,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="bg">#eef0fd</color>
     <color name="priCol">#516BEB</color>
+    <color name="red">#DA1515</color>
+    <color name="green">#0B8325</color>
 </resources>
