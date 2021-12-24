@@ -6,6 +6,9 @@ Simple Employee Details Generator App in Android
 ## Code:
 ### [MainActivity.java](https://github.com/mbganesh/Employee-Detail-Generator/blob/master/app/src/main/java/mb/ganesh/employeedetails/MainActivity.java)
 
+## PlayStore:
+### [Download At PlayStore](https://play.google.com/store/apps/details?id=mb.ganesh.employeedetails)
+
 
 ## Screens and Outs
 
